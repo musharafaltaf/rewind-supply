@@ -6,7 +6,7 @@ export async function GET() {
 
   await connectDB();
 
-  const existing = await User.findOne({ email: "admin@05mart.com" } as any);
+  const existing = await User.findOne({ email: "musharafdar@10gmail.com" } as any);
 
   if (existing) {
     return NextResponse.json({ message: "Admin already exists" });
@@ -15,7 +15,7 @@ export async function GET() {
   const admin = await User.create({
     name: "Admin",
     email: "admin@05mart.com",
-    password: "123456",
+    password: "@Humayoonlonee",
     role: "admin"
   });
 
