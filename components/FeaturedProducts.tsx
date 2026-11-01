@@ -135,6 +135,18 @@
 import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 
+interface Product {
+  _id: string;
+  name: string;
+  image?: string;
+  price: number;
+  mrp?: number;
+  stock?: number;
+  isNew?: boolean;
+  sizes?: string[];
+  featured?: boolean;
+}
+
 function ProductSkeleton() {
   return (
     <div className="bg-white overflow-hidden">
@@ -150,13 +162,18 @@ function ProductSkeleton() {
 }
 
 export default function FeaturedProducts() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const loadProducts = async () => {
       try {
-        const res = await fetch("/api/products");
+        const res = await fetch("/api/products", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
         if (!res.ok) {
           throw new Error("Failed to load products");
@@ -164,24 +181,41 @@ export default function FeaturedProducts() {
 
         const data = await res.json();
 
-        const featured = Array.isArray(data)
-          ? data.filter((p: any) => p.featured)
+        const featured: Product[] = Array.isArray(data)
+          ? data.filter(
+              (product: Product) => product.featured === true
+            )
           : [];
 
         setProducts(featured);
-      } catch (err) {
-        console.error("Product loading error:", err);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
+        console.error("Product loading error:", error);
+        setProducts([]);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     loadProducts();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
+  // Loading skeleton
   if (loading) {
     return (
-      <section className="max-w-7xl mx-auto px-3 sm:px-5 py-6 sm:py-10">
+      <section
+        aria-label="Featured products"
+        className="max-w-7xl mx-auto px-3 sm:px-5 py-6 sm:py-10"
+      >
         <h2 className="text-xl sm:text-2xl font-bold text-black mb-5">
           Featured Finds
         </h2>
@@ -195,17 +229,23 @@ export default function FeaturedProducts() {
     );
   }
 
+  // No featured products
   if (products.length === 0) {
     return null;
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-3 sm:px-5 py-6 sm:py-10">
-
-      {/* SECTION HEADING */}
+    <section
+      aria-labelledby="featured-products-heading"
+      className="max-w-7xl mx-auto px-3 sm:px-5 py-6 sm:py-10"
+    >
+      {/* Section heading */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-black">
+          <h2
+            id="featured-products-heading"
+            className="text-xl sm:text-2xl font-bold text-black"
+          >
             Featured Finds
           </h2>
 
@@ -215,16 +255,15 @@ export default function FeaturedProducts() {
         </div>
       </div>
 
-      {/* PRODUCT GRID */}
+      {/* Product grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6 sm:gap-x-5 sm:gap-y-8">
-        {products.map((product: any) => (
+        {products.map((product) => (
           <ProductCard
             key={product._id}
             product={product}
           />
         ))}
       </div>
-
     </section>
   );
 }

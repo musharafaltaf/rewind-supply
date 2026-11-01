@@ -249,20 +249,28 @@
 
 
 
-"use client";
+import type { Metadata } from "next";
+import HomeClient from "./HomeClient";
 
-import { useState } from "react";
-import HomeSectionsContainer from "@/components/HomeSectionsContainer";
+export const metadata: Metadata = {
+  title: "Rewind Supply | Shop Online",
+  description:
+    "Discover Rewind Supply. Explore our latest products, browse collections, and shop online.",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    title: "Rewind Supply | Shop Online",
+    description:
+      "Discover Rewind Supply. Explore our latest products and shop online.",
+    url: "https://rewindsupply.online/",
+    siteName: "Rewind Supply",
+    type: "website",
+  },
+};
 
 export default function Home() {
-  const [index, setIndex] = useState(0);
-
-  return (
-    <main className="pageWrapper">
-      <HomeSectionsContainer
-        index={index}
-        setIndex={setIndex}
-      />
-    </main>
-  );
+  return <HomeClient />;
 }

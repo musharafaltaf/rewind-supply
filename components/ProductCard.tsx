@@ -129,30 +129,56 @@
 
 import Link from "next/link";
 
-export default function ProductCard({ product }: any) {
+interface Product {
+  _id: string;
+  name: string;
+  image?: string;
+  price: number;
+  mrp?: number;
+  stock?: number;
+  isNew?: boolean;
+  sizes?: string[];
+}
+
+interface ProductCardProps {
+  product: Product;
+}
+
+export default function ProductCard({ product }: ProductCardProps) {
   const stock = product?.stock ?? 1;
 
-  const discount = product?.mrp
-    ? Math.round(
-        ((product.mrp - product.price) / product.mrp) * 100
-      )
-    : 0;
+  const isOutOfStock = stock <= 0;
+
+  // Calculate discount safely
+  const discount =
+    product?.mrp &&
+    product.mrp > product.price &&
+    product.price >= 0
+      ? Math.round(
+          ((product.mrp - product.price) / product.mrp) * 100
+        )
+      : 0;
+
+  const productUrl = `/product/${product._id}`;
 
   return (
-    <div className="group bg-white overflow-hidden">
-
+    <article className="group bg-white overflow-hidden">
       {/* PRODUCT IMAGE */}
-      <Link href={`/product/${product?._id}`}>
+      <Link
+        href={productUrl}
+        aria-label={`View ${product.name}`}
+      >
         <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-[#f1f1f1]">
 
           <img
-            src={product?.image || "/placeholder.png"}
-            alt={product?.name || "Product"}
+            src={product.image || "/placeholder.png"}
+            alt={`${product.name} - Rewind Supply`}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
           {/* NEW BADGE */}
-          {product?.isNew && (
+          {product.isNew && (
             <span className="absolute top-2 left-2 bg-[#b9e3f5] text-black text-[10px] font-bold px-2.5 py-1 rounded">
               NEW
             </span>
@@ -166,7 +192,7 @@ export default function ProductCard({ product }: any) {
           )}
 
           {/* OUT OF STOCK */}
-          {stock === 0 && (
+          {isOutOfStock && (
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <span className="bg-white text-black text-xs font-semibold px-3 py-2 rounded">
                 Out of Stock
@@ -181,9 +207,9 @@ export default function ProductCard({ product }: any) {
       <div className="pt-3 pb-4 px-1">
 
         {/* PRODUCT NAME */}
-        <Link href={`/product/${product?._id}`}>
-          <h3 className="text-[13px] sm:text-sm text-gray-700 font-normal line-clamp-2 leading-5">
-            {product?.name}
+        <Link href={productUrl}>
+          <h3 className="text-[13px] sm:text-sm text-gray-700 font-normal line-clamp-2 leading-5 hover:text-black transition">
+            {product.name}
           </h3>
         </Link>
 
@@ -191,12 +217,12 @@ export default function ProductCard({ product }: any) {
         <div className="flex items-center gap-2 mt-2 flex-wrap">
 
           <span className="text-base sm:text-lg font-bold text-black">
-            ₹{product?.price}
+            ₹{product.price}
           </span>
 
-          {product?.mrp && (
+          {product.mrp && product.mrp > product.price && (
             <span className="text-xs text-gray-400 line-through">
-              ₹{product?.mrp}
+              ₹{product.mrp}
             </span>
           )}
 
@@ -208,14 +234,21 @@ export default function ProductCard({ product }: any) {
 
         </div>
 
-        {/* SIZE */}
-        {product?.sizes?.length > 0 && (
+        {/* SIZES */}
+        {product.sizes && product.sizes.length > 0 && (
           <p className="text-[11px] text-gray-500 mt-1">
             Sizes: {product.sizes.join(" • ")}
           </p>
         )}
 
+        {/* STOCK STATUS */}
+        {stock > 0 && stock <= 5 && (
+          <p className="text-[11px] text-orange-600 mt-1 font-medium">
+            Only {stock} left
+          </p>
+        )}
+
       </div>
-    </div>
+    </article>
   );
 }

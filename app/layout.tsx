@@ -1,76 +1,75 @@
-"use client";
+import type { Metadata } from "next";
 
 import "./globals.css";
 
-import Navbar from "../components/Navbar";
-import SupportButton from "@/components/SupportButton";
-import PageTransition from "@/components/PageTransition";
-import BottomNav from "@/components/BottomNav";
+import ClientShell from "./ClientShell";
 
-import { CartProvider } from "./context/CartContext";
-import { WishlistProvider } from "./context/WishlistContext";
-import { SearchProvider } from "@/app/context/SearchContext";
+export const metadata: Metadata = {
+  metadataBase: new URL("https://rewindsupply.online"),
 
-import ClientLayout from "@/components/ClientLayout";
-import ReviewPopup from "@/components/ReviewPopup";
+  title: {
+    default: "Rewind Supply | Online Store",
+    template: "%s | Rewind Supply",
+  },
 
-import { usePathname } from "next/navigation";
+  description:
+    "Discover Rewind Supply. Explore our latest collections, discover unique styles and shop online.",
+
+  applicationName: "Rewind Supply",
+
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    title: "Rewind Supply | Online Store",
+    description:
+      "Discover Rewind Supply. Explore our latest collections and shop online.",
+    url: "https://rewindsupply.online",
+    siteName: "Rewind Supply",
+    locale: "en_IN",
+    type: "website",
+    images: [
+      {
+        url: "/logo.png",
+        alt: "Rewind Supply Logo",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary",
+    title: "Rewind Supply | Online Store",
+    description:
+      "Discover Rewind Supply. Explore our latest collections and shop online.",
+    images: ["/logo.png"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
-  const pathname = usePathname();
-
-  /* 🚫 HIDE ON AUTH + SPECIAL PAGES */
-  const hideUI =
-    pathname.startsWith("/register") ||
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/loading") ||
-    pathname.startsWith("/invite") ||
-    pathname.startsWith("/wallet") ||
-    pathname.startsWith("/intro") ||
-    pathname.startsWith("/forgot") ||
-    pathname.startsWith("/payment");
-
   return (
     <html lang="en">
       <body className="relative">
-
-        <SearchProvider>
-          <ReviewPopup />
-
-          <CartProvider>
-            <WishlistProvider>
-
-              <ClientLayout>
-
-                {/* ✅ CONDITIONAL UI */}
-
-                {!hideUI && <Navbar children={""} />}
-
-                {!hideUI && <SupportButton />}
-
-                <div className="min-h-screen flex flex-col">
-
-                  <main className={`flex-1 relative z-10 ${!hideUI ? "pb-[80px]" : ""}`}>
-                    <PageTransition>
-                      {children}
-                    </PageTransition>
-                  </main>
-
-                  {!hideUI && <BottomNav />}
-
-                </div>
-
-              </ClientLayout>
-
-            </WishlistProvider>
-          </CartProvider>
-        </SearchProvider>
-
+        <ClientShell>{children}</ClientShell>
       </body>
     </html>
   );
