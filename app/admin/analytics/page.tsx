@@ -1,42 +1,75 @@
 "use client";
 
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function Analytics(){
+export default function Analytics() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const [orders,setOrders] = useState([]);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch("/api/orders");
+        const data = await res.json();
+        setOrders(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Analytics error:", error);
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-useEffect(() => {
+    fetchOrders();
+  }, []);
 
-  const fetchOrders = async () => {
-    const res = await fetch("/api/orders");
-    const data = await res.json();
-    setOrders(data);
-  };
+  const validOrders = orders.filter(
+    (order) =>
+      !["cancelled", "refunded", "returned"].includes(
+        order.status?.toLowerCase()
+      )
+  );
 
-  fetchOrders();
+  const totalRevenue = validOrders.reduce(
+    (sum, order) => sum + Number(order.total || 0),
+    0
+  );
 
-}, []);
+  const totalCODFees = validOrders.reduce(
+    (sum, order) => sum + Number(order.codFee || 0),
+    0
+  );
 
-const totalRevenue = orders.reduce(
-(sum,o)=>sum+o.total,
-0
-);
+  const totalPrepaidDiscounts = validOrders.reduce(
+    (sum, order) => sum + Number(order.onlineDiscount || 0),
+    0
+  );
 
-return(
+  return (
+    <main className="max-w-5xl mx-auto p-10">
+      <h1 className="text-2xl font-bold mb-6">Store Analytics</h1>
 
-<main className="max-w-5xl mx-auto p-10">
+      {loading ? (
+        <p>Loading analytics...</p>
+      ) : (
+        <div className="space-y-3">
+          <p>Total Orders: {orders.length}</p>
 
-<h1 className="text-2xl font-bold mb-6">
-Store Analytics
-</h1>
+          <p>Active Orders: {validOrders.length}</p>
 
-<p>Total Orders: {orders.length}</p>
+          <p className="text-xl font-bold text-green-700">
+            Total Revenue: ₹{totalRevenue.toFixed(2)}
+          </p>
 
-<p>Total Revenue: ₹{totalRevenue}</p>
+          <p className="text-orange-600">
+            COD Fees Collected: ₹{totalCODFees.toFixed(2)}
+          </p>
 
-</main>
-
-);
-
+          <p className="text-green-600">
+            Prepaid Discounts Given: ₹{totalPrepaidDiscounts.toFixed(2)}
+          </p>
+        </div>
+      )}
+    </main>
+  );
 }

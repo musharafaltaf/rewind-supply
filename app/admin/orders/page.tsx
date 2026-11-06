@@ -1,450 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-
-// export default function AdminOrdersPage(){
-
-// const [orders,setOrders] = useState<any[]>([]);
-// const [loading,setLoading] = useState(true);
-
-// useEffect(()=>{
-
-// loadOrders();
-
-// },[]);
-
-// const loadOrders = async()=>{
-
-// try{
-
-// const res = await fetch("/api/orders");
-
-// const data = await res.json();
-
-// setOrders(data);
-
-// }catch(err){
-
-// console.log(err);
-
-// }
-
-// setLoading(false);
-
-// };
-
-// const updateStatus = async(orderId:string,status:string)=>{
-
-// await fetch("/api/orders/update",{
-// method:"POST",
-// headers:{
-// "Content-Type":"application/json"
-// },
-// body:JSON.stringify({
-// orderId,
-// status
-// })
-// });
-
-// loadOrders();
-
-// };
-
-// const deleteOrder = async(id:string)=>{
-
-// await fetch(`/api/orders/${id}`,{
-// method:"DELETE"
-// });
-
-// loadOrders();
-
-// };
-
-// return(
-
-// <main className="max-w-7xl mx-auto px-4 py-10">
-
-// <h1 className="text-3xl font-bold mb-6">
-// Admin Orders
-// </h1>
-
-// {loading && <p>Loading orders...</p>}
-
-// <div className="space-y-6">
-
-// {orders.map((order:any)=>(
-
-// <div
-// key={order._id}
-// className="border rounded p-6"
-// >
-
-// {/* ORDER HEADER */}
-
-// <div className="flex justify-between mb-4">
-
-// <div>
-
-// <p className="font-semibold">
-// Order ID: {order._id}
-// </p>
-
-// <p className="text-sm text-gray-500">
-// Total: ₹{order.total}
-// </p>
-
-// </div>
-
-// <button
-// onClick={()=>deleteOrder(order._id)}
-// className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-// >
-// Delete
-// </button>
-
-// </div>
-
-// {/* CUSTOMER */}
-
-// <div className="mb-4 text-sm">
-
-// <p className="font-medium">
-// Customer
-// </p>
-
-// <p>{order.customer?.name}</p>
-// <p>{order.customer?.phone}</p>
-// <p>{order.customer?.address}</p>
-// <p>{order.customer?.city}</p>
-
-// </div>
-
-// {/* PRODUCTS */}
-
-// <div className="mb-4">
-
-// <p className="font-medium mb-2">
-// Products
-// </p>
-
-// <div className="space-y-3">
-
-// {order.items?.map((item:any,index:number)=>(
-
-// <div
-// key={index}
-// className="flex items-center gap-4"
-// >
-
-// <img
-// src={item.image}
-// className="w-12 h-12 object-cover rounded"
-// />
-
-// <div className="flex-1">
-
-// <p className="text-sm">
-// {item.name}
-// </p>
-
-// <p className="text-xs text-gray-500">
-// Qty: {item.quantity}
-// </p>
-
-// </div>
-
-// <p className="text-sm">
-// ₹{item.price}
-// </p>
-
-// </div>
-
-// ))}
-
-// </div>
-
-// </div>
-
-// {/* ORDER STATUS */}
-
-// <div className="flex items-center gap-4">
-
-// <p className="font-medium">
-// Status
-// </p>
-
-// <select
-// value={order.status}
-// onChange={(e)=>updateStatus(order._id,e.target.value)}
-// className="border p-2 rounded"
-// >
-
-// <option value="placed">
-// Placed
-// </option>
-
-// <option value="packed">
-// Packed
-// </option>
-
-// <option value="shipped">
-// Shipped
-// </option>
-
-// <option value="out">
-// Out for Delivery
-// </option>
-
-// <option value="delivered">
-// Delivered
-// </option>
-
-// </select>
-
-// </div>
-
-// </div>
-
-// ))}
-
-// </div>
-
-// </main>
-
-// );
-
-// }
-
-
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import jsPDF from "jspdf";
-
-// export default function AdminOrders() {
-
-// const [orders,setOrders] = useState<any[]>([]);
-
-// useEffect(()=>{
-
-// const loadOrders = async()=>{
-
-// try{
-
-// const res = await fetch("/api/orders");
-// const data = await res.json();
-
-// setOrders(Array.isArray(data) ? data : []);
-
-// }catch(err){
-// console.log(err);
-// }
-
-// };
-
-// loadOrders();
-
-// },[]);
-
-// const downloadInvoice = (order:any)=>{
-
-// const doc = new jsPDF();
-
-// doc.setFontSize(18);
-// doc.text("05Mart Invoice", 70, 20);
-
-// doc.setFontSize(12);
-
-// doc.text(`Order ID: ${order._id}`,20,40);
-
-// doc.text(`Customer: ${order.customer?.name || ""}`,20,50);
-// doc.text(`Phone: ${order.customer?.phone || ""}`,20,60);
-
-// doc.text("Address:",20,75);
-
-// doc.text(
-// `${order.customer?.house || ""} ${order.customer?.area || ""}`,
-// 20,
-// 85
-// );
-
-// doc.text(
-// `${order.customer?.city || ""}, ${order.customer?.state || ""} ${order.customer?.pincode || ""}`,
-// 20,
-// 95
-// );
-
-// let y = 120;
-
-// doc.text("Products:",20,y);
-
-// y += 10;
-
-// order.items?.forEach((item:any)=>{
-
-// doc.text(
-// `${item.name} | Size ${item.size || "-"} | Qty ${item.quantity} | ₹${item.price}`,
-// 20,
-// y
-// );
-
-// y += 10;
-
-// });
-
-// doc.text(`Total: ₹${order.total}`,20,y+10);
-
-// doc.save(`invoice_${order._id}.pdf`);
-
-// };
-
-// return(
-
-// <main className="max-w-6xl mx-auto px-4 py-10">
-
-// <h1 className="text-2xl font-bold mb-8">
-// Admin Orders
-// </h1>
-
-// {orders.length === 0 && (
-// <p>No orders found</p>
-// )}
-
-// <div className="space-y-6">
-
-// {orders.map((order:any)=>(
-// <div key={order._id} className="border p-6 rounded-lg">
-
-// {/* ORDER HEADER */}
-
-// <div className="flex justify-between mb-4">
-
-// <p className="font-semibold">
-// Order ID: {order._id}
-// </p>
-
-// <p className="text-sm bg-gray-100 px-3 py-1 rounded">
-// {order.status}
-// </p>
-
-// </div>
-
-// {/* CUSTOMER */}
-
-// <div className="bg-gray-50 p-4 rounded mb-4">
-
-// <p className="font-semibold mb-2">Customer</p>
-
-// <p>{order.customer?.name}</p>
-
-// <p>
-// {order.customer?.house} {order.customer?.area}
-// </p>
-
-// <p>
-// {order.customer?.city}, {order.customer?.state}
-// </p>
-
-// <p>{order.customer?.pincode}</p>
-
-// <p className="mt-2">
-// Phone: {order.customer?.phone}
-// </p>
-
-// {/* CALL BUTTON */}
-
-// {order.customer?.phone && (
-
-// <a
-// href={`tel:${order.customer?.phone || ""}`}
-// className="inline-block mt-3 bg-green-600 text-white px-4 py-2 rounded"
-// >
-// Call Customer
-// </a>
-
-// )}
-
-// </div>
-
-// {/* PRODUCTS */}
-
-// <div className="space-y-3">
-
-// {order.items?.map((item:any)=>(
-// <div key={item._id} className="flex gap-4 border p-3 rounded">
-
-// <img
-// src={item.image}
-// className="w-16 h-16 object-cover rounded"
-// />
-
-// <div>
-
-// <p className="font-medium">{item.name}</p>
-
-// <p className="text-sm">Size: {item.size}</p>
-
-// <p className="text-sm">Qty: {item.quantity}</p>
-
-// <p className="font-semibold">₹{item.price}</p>
-
-// </div>
-
-// </div>
-// ))}
-
-// </div>
-
-// {/* TOTAL */}
-
-// <div className="flex justify-between mt-4 items-center">
-
-// <p className="font-semibold">
-// Total: ₹{order.total}
-// </p>
-
-// <button
-// onClick={()=>downloadInvoice(order)}
-// className="bg-black text-white px-4 py-2 rounded"
-// >
-// Download Invoice
-// </button>
-
-// </div>
-
-// </div>
-// ))}
-
-// </div>
-
-// </main>
-
-// );
-
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 import { useEffect, useState, useRef } from "react";
 import jsPDF from "jspdf";
@@ -613,18 +166,18 @@ Total: ₹${order.total}
 Track order:
 https://05mart.in/orders/${order._id}
 
-Team 05Mart ❤️
+Team Rewind Supply ❤️
 `;
 
 const messageShipped = (order:any)=>`
 Hello ${order.customer?.name} 👋
 
-Your order from *05Mart* has been *SHIPPED* 🚚
+Your order from *Rewind Supply* has been *SHIPPED* 🚚
 
 Order ID: ${order._id}
 
 Track order:
-https://05mart.in/orders/${order._id}
+https://rewindsupply.online/orders/${order._id}
 `;
 
 const messageOut = (order:any)=>`
@@ -638,7 +191,7 @@ Order ID: ${order._id}
 const messageDelivered = (order:any)=>`
 Hello ${order.customer?.name}
 
-Your order from *05Mart* has been *DELIVERED*.
+Your order from *Rewind Supply* has been *DELIVERED*.
 
 Thank you for shopping ❤️
 `;
@@ -646,7 +199,7 @@ Thank you for shopping ❤️
 const messageCancelled = (order:any)=>`
 Hello ${order.customer?.name}
 
-Your order from *05Mart* has been *CANCELLED*.
+Your order from *Rewind Supply* has been *CANCELLED*.
 
 Order ID: ${order._id}
 `;
@@ -687,7 +240,7 @@ const doc = new jsPDF();
 let y = 20;
 
 doc.setFontSize(20);
-doc.text("05Mart Invoice",80,y);
+doc.text("Rewind Supply Invoice",80,y);
 
 y+=20;
 
@@ -729,7 +282,37 @@ y+=10;
 
 y+=10;
 
-doc.text(`Total ₹${order.total}`,20,y);
+const subtotal = order.items.reduce(
+  (sum: number, item: any) =>
+    sum + Number(item.price) * Number(item.quantity || 1),
+  0
+);
+
+y += 5;
+
+doc.text(`Subtotal: Rs. ${subtotal.toFixed(2)}`, 20, y);
+y += 8;
+
+if (Number(order.onlineDiscount || 0) > 0) {
+  doc.text(
+    `Prepaid Discount: -Rs. ${Number(order.onlineDiscount).toFixed(2)}`,
+    20,
+    y
+  );
+  y += 8;
+}
+
+if (Number(order.codFee || 0) > 0) {
+  doc.text(
+    `COD Handling Fee: +Rs. ${Number(order.codFee).toFixed(2)}`,
+    20,
+    y
+  );
+  y += 8;
+}
+
+doc.setFontSize(14);
+doc.text(`Final Payable: Rs. ${Number(order.total).toFixed(2)}`, 20, y + 5);
 
 const qr = await QRCode.toDataURL(order._id);
 
@@ -1024,6 +607,48 @@ Call Customer
 
 </div>
 
+
+{/* PRICE DETAILS */}
+<div className="mt-4 border rounded-lg p-4 bg-gray-50">
+  <h3 className="font-semibold mb-3">Price Details</h3>
+
+  <div className="flex justify-between text-sm mb-2">
+    <span>Product Subtotal</span>
+    <span>
+      ₹
+      {order.items
+        .reduce(
+          (sum: number, item: any) =>
+            sum + Number(item.price) * Number(item.quantity || 1),
+          0
+        )
+        .toFixed(2)}
+    </span>
+  </div>
+
+  {Number(order.onlineDiscount || 0) > 0 && (
+    <div className="flex justify-between text-sm text-green-600 mb-2">
+      <span>5% Prepaid Discount</span>
+      <span>-₹{Number(order.onlineDiscount).toFixed(2)}</span>
+    </div>
+  )}
+
+  {Number(order.codFee || 0) > 0 && (
+    <div className="flex justify-between text-sm text-orange-600 mb-2">
+      <span>COD Handling Fee</span>
+      <span>+₹{Number(order.codFee).toFixed(2)}</span>
+    </div>
+  )}
+
+  <div className="border-t pt-3 mt-3 flex justify-between font-bold text-lg">
+    <span>Final Payable</span>
+    <span>₹{Number(order.total || 0).toFixed(2)}</span>
+  </div>
+
+  <p className="text-xs text-gray-500 mt-2">
+    Payment Method: {order.paymentMethod?.toUpperCase() || "COD"}
+  </p>
+</div>
 {/* ACTION BUTTONS */}
 
 <div className="flex flex-wrap gap-2 mt-4">
@@ -1081,21 +706,21 @@ const phone = order.customer?.phone
 
 const message = `Hello ${order.customer?.name},
 
-Thank you for shopping with 05Mart ❤️
+Thank you for shopping with Rewind Supply ❤️
 
 Your order for *${item.name}* has been successfully delivered.
 
 We would love to hear your feedback!
 
 Please leave your review here:
-https://05mart.in/orders
+https://rewindsupply.online/orders
 
 Once you open the page, click *Leave Review* on your delivered order.
 
 Your feedback helps other customers and improves our service.
 
 Thank you 🙏
-— Team 05Mart`
+— Team Rewind Supply`
 
 const whatsappUrl =
 `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`

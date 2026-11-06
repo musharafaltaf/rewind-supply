@@ -1,56 +1,82 @@
+
 import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
 import Order from "@/app/lib/models/Order";
 
-export async function POST(req: Request){
+export async function POST(req: Request) {
+  await connectDB();
 
-await connectDB();
+  try {
+    const body = await req.json();
 
-try{
+    console.log("ORDER:", body);
 
-const body = await req.json();
+    // BASIC VALIDATION
+    if (!body.items || !body.customer) {
+      return NextResponse.json(
+        { error: "Invalid data" },
+        { status: 400 }
+      );
+    }
 
-console.log("COD ORDER:", body);
+    // PAYMENT CALCULATION
+    const paymentMethod = body.paymentMethod || "cod";
 
-/* BASIC VALIDATION */
-if(!body.items || !body.customer){
-return NextResponse.json({error:"Invalid data"},{status:400});
-}
+    const subtotal = body.items.reduce(
+      (sum: number, item: any) =>
+        sum + Number(item.price) * Number(item.quantity || 1),
+      0
+    );
 
-/* CREATE ORDER (NO PAYMENT LOGIC) */
-const order = await Order.create({
+    const COD_FEE = 99;
+    const PREPAID_DISCOUNT_PERCENT = 5;
 
-userId: body.userId || "guest",
+    const codFee =
+      paymentMethod === "cod" ? COD_FEE : 0;
 
-items: body.items,
+    const onlineDiscount =
+      paymentMethod === "upi" || paymentMethod === "qr"
+        ? Math.round(
+            subtotal * PREPAID_DISCOUNT_PERCENT / 100
+          )
+        : 0;
 
-total: Number(body.total) || 0,
+    const finalTotal =
+      subtotal - onlineDiscount + codFee;
 
-customer: body.customer,
+    // CREATE ORDER
+    const order = await Order.create({
+      userId: body.userId || "guest",
 
-paymentMethod: "cod",
+      items: body.items,
 
-status: "pending",
+      total: finalTotal,
 
-tracking:[
-{
-status:"Order Placed",
-date:new Date()
-}
-]
+      codFee,
+      onlineDiscount,
 
-});
+      customer: body.customer,
 
-/* ✅ NO STOCK RISK (OPTIONAL ADD LATER) */
+      paymentMethod,
 
-return NextResponse.json(order);
+      status: "pending",
 
-}catch(err){
+      tracking: [
+        {
+          status: "Order Placed",
+          date: new Date(),
+        },
+      ],
+    });
 
-console.log("COD ERROR:", err);
+    return NextResponse.json(order);
 
-return NextResponse.json({error:"COD failed"},{status:500});
+  } catch (err) {
+    console.log("ORDER ERROR:", err);
 
-}
-
+    return NextResponse.json(
+      { error: "Order failed" },
+      { status: 500 }
+    );
+  }
 }

@@ -1,5 +1,5 @@
 export const PAYMENT_CONFIG = {
-  upiId: "7006458741-2@ybl",
-  merchantName: "Rewind Supply",
+  upiId: "7780970594-yfb9@ybl",
+  merchantName: "BILAL AHMAD",
   currency: "INR",
 };

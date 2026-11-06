@@ -322,9 +322,44 @@ Qty: {item.quantity}
 
 <div className="orderFooter">
 
-<p className="total">
-Total: ₹{order.total}
-</p>
+{/* PRICE DETAILS */}
+<div className="priceDetails">
+
+  <p>
+    Product Subtotal:
+    <span>
+      ₹{order.items.reduce(
+        (sum: number, item: any) =>
+          sum + Number(item.price) * Number(item.quantity || 1),
+        0
+      ).toFixed(2)}
+    </span>
+  </p>
+
+  {Number(order.onlineDiscount || 0) > 0 && (
+    <p className="prepaidDiscount">
+      Prepaid Discount (5%):
+      <span>-₹{Number(order.onlineDiscount).toFixed(2)}</span>
+    </p>
+  )}
+
+  {Number(order.codFee || 0) > 0 && (
+    <p>
+      COD Handling Fee:
+      <span>+₹{Number(order.codFee).toFixed(2)}</span>
+    </p>
+  )}
+
+  <p className="finalTotal">
+    Final Amount:
+    <span>₹{Number(order.total).toFixed(2)}</span>
+  </p>
+
+  <p className="paymentMethod">
+    Payment: {order.paymentMethod?.toUpperCase() || "COD"}
+  </p>
+
+</div>
 
 <div className="actions">
 
@@ -433,7 +468,7 @@ onClick={(e)=>e.stopPropagation()}
 </Link>
 
 <a
-href={`https://wa.me/919103316778?text=${encodeURIComponent(
+href={`https://wa.me/917006134273?text=${encodeURIComponent(
 `Hi, my name is ${user?.name}. I need help with my order.
 
 Product: ${order.items?.[0]?.name}
@@ -502,6 +537,41 @@ padding:20px;
 font-size:26px;
 font-weight:700;
 margin-bottom:24px;
+}
+.priceDetails {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.priceDetails p {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.priceDetails .prepaidDiscount {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.priceDetails .finalTotal {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.priceDetails .paymentMethod {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 0;
 }
 
 .orders{

@@ -1,415 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import CheckoutSteps from "@/components/CheckoutSteps";
-
-// export default function PaymentPage() {
-
-// const router = useRouter();
-
-// const [cart, setCart] = useState<any[]>([]);
-// const [payment, setPayment] = useState("cod");
-
-// const [loading, setLoading] = useState(false);
-// const [showModal, setShowModal] = useState(false);
-
-// const [toast, setToast] = useState<string | null>(null);
-
-// const [pageLoading,setPageLoading] = useState(true);
-// const [confirmLoading,setConfirmLoading] = useState(false);
-
-// const STORE_UPI = "daraamir369369@okhdfcbank";
-
-// /* ================= LOAD ================= */
-
-// useEffect(() => {
-
-// const user = localStorage.getItem("user");
-
-// if (!user) {
-// router.push("/login");
-// return;
-// }
-
-// const loadCart = async () => {
-
-// const buyNow = localStorage.getItem("buyNow");
-
-// if (buyNow) {
-// setCart([JSON.parse(buyNow)]);
-// setPageLoading(false);
-// return;
-// }
-
-// const res = await fetch("/api/cart");
-// const data = await res.json();
-
-// setCart(data.items || []);
-// setPageLoading(false);
-
-// };
-
-// loadCart();
-
-// }, []);
-
-// /* ================= PRICE ================= */
-
-// const subtotal = cart.reduce(
-// (sum, item) => sum + Number(item.price) * Number(item.quantity || 1),
-// 0
-// );
-
-// const mrpTotal = cart.reduce(
-// (sum, item) => sum + Number(item.mrp || item.price) * Number(item.quantity || 1),
-// 0
-// );
-
-// const discount = mrpTotal - subtotal;
-
-// const total = subtotal;
-
-// /* ================= TOAST ================= */
-
-// const showToast = (msg:string)=>{
-// setToast(msg);
-// setTimeout(()=>setToast(null),2000);
-// };
-
-// /* ================= UPI ================= */
-
-// const handleUPIPayment = () => {
-
-// const link = `upi://pay?pa=${STORE_UPI}&pn=05Mart&am=${total}&cu=INR`;
-
-// window.location.href = link;
-
-// setTimeout(()=>{
-// showToast("If UPI didn't open, use QR");
-// },1200);
-
-// };
-
-// const copyUPI = async () => {
-// await navigator.clipboard.writeText(STORE_UPI);
-// showToast("UPI Copied");
-// };
-
-// /* ================= RAZORPAY ================= */
-
-// useEffect(() => {
-// if ((window as any).Razorpay) return;
-// const script = document.createElement("script");
-// script.src = "https://checkout.razorpay.com/v1/checkout.js";
-// document.body.appendChild(script);
-// }, []);
-
-// const payWithRazorpay = async () => {
-
-// const res = await fetch("/api/razorpay/order", {
-// method: "POST",
-// headers: { "Content-Type": "application/json" },
-// body: JSON.stringify({ amount: total })
-// });
-
-// const data = await res.json();
-
-// const rzp = new (window as any).Razorpay({
-// key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-// amount: data.amount,
-// currency: "INR",
-// order_id: data.id,
-// handler: async () => placeOrder("paid")
-// });
-
-// rzp.open();
-
-// };
-
-// /* ================= CONFIRM ================= */
-
-// const confirmOrder = ()=>{
-// setShowModal(true);
-// };
-
-// const proceedPayment = ()=>{
-
-// setConfirmLoading(true);
-
-// setTimeout(()=>{
-
-// setShowModal(false);
-
-// if (payment === "cod") return placeOrder();
-// if (payment === "upi") return handleUPIPayment();
-// if (payment === "razorpay") return payWithRazorpay();
-
-// },800);
-
-// };
-
-// /* ================= ORDER ================= */
-
-// const placeOrder = async (statusParam = "pending") => {
-
-// if (loading) return;
-
-// setLoading(true);
-
-// try {
-
-// const userData = localStorage.getItem("user");
-// const user = userData ? JSON.parse(userData) : null;
-
-// const address = JSON.parse(localStorage.getItem("selectedAddress") || "{}");
-
-// const res = await fetch("/api/orders", {
-// method: "POST",
-// headers: { "Content-Type": "application/json" },
-// body: JSON.stringify({
-// items: cart,
-// total,
-// customer: address,
-// paymentMethod: payment,
-// userId: user?._id || "guest",
-// status: statusParam
-// })
-// });
-
-// const order = await res.json();
-
-// if (!res.ok) {
-// alert(order?.error || "Order failed");
-// setLoading(false);
-// return;
-// }
-
-// router.push(`/success?orderId=${order._id}`);
-
-// } catch (err) {
-// console.log(err);
-// alert("Something went wrong");
-// }
-
-// setLoading(false);
-
-// };
-
-// /* ================= SKELETON ================= */
-
-// if(pageLoading){
-// return(
-// <main className="max-w-7xl mx-auto px-4 py-8">
-
-// <CheckoutSteps step={3} />
-
-// <div className="h-6 w-40 bg-gray-200 rounded shimmer mb-6"></div>
-
-// <div className="grid md:grid-cols-2 gap-6">
-
-// {[1,2].map(i=>(
-// <div key={i} className="p-6 border rounded-xl space-y-3">
-
-// <div className="h-4 w-32 bg-gray-200 shimmer rounded"></div>
-// <div className="h-3 w-24 bg-gray-200 shimmer rounded"></div>
-// <div className="h-3 w-48 bg-gray-200 shimmer rounded"></div>
-
-// </div>
-// ))}
-
-// </div>
-
-// </main>
-// );
-// }
-
-// /* ================= UI ================= */
-
-// return (
-
-// <main className="max-w-7xl mx-auto px-4 py-8">
-
-// <div className="fixed top-20 left-0 w-full z-[999] bg-white/90 backdrop-blur-md border-b shadow-sm">
-//   <CheckoutSteps step={3} />
-// </div>
-
-// <div className="h-[80px]" /> {/* spacing */}
-
-// <h1 className="text-2xl font-bold mb-6">Complete Payment</h1>
-
-// <div className="grid md:grid-cols-2 gap-6">
-
-// {/* LEFT */}
-// <div className="space-y-4">
-
-// <div className="shadow-md rounded-xl p-4 space-y-3 bg-white">
-
-// {["cod","razorpay","upi"].map(type=>(
-// <label key={type}
-// className={`flex gap-3 p-3 rounded-lg cursor-pointer transition ${
-// payment===type?"border-2 border-black":"border"
-// }`}>
-// <input type="radio"
-// checked={payment===type}
-// onChange={()=>setPayment(type)}
-// />
-// {type==="cod"?"Cash on Delivery":
-// type==="razorpay"?"Online Payment":
-// "UPI Payment"}
-// </label>
-// ))}
-
-// </div>
-
-// {payment==="upi" && (
-// <div className="shadow-md rounded-xl p-4 bg-gray-50">
-
-// <img src="/upi-qr.png" className="w-40 mx-auto mb-3" />
-
-// <button onClick={handleUPIPayment}
-// className="bg-green-600 text-white w-full py-2 rounded-lg">
-// Open UPI
-// </button>
-
-// <button onClick={copyUPI}
-// className="border w-full py-2 rounded-lg mt-2">
-// Copy UPI
-// </button>
-
-// </div>
-// )}
-
-// </div>
-
-// {/* RIGHT */}
-// <div className="shadow-md rounded-xl p-5 bg-white sticky top-20">
-
-// <h2 className="font-semibold mb-4">Price Details</h2>
-
-// <div className="flex justify-between mb-2">
-// <span>MRP</span>
-// <span className="line-through text-gray-400">₹{mrpTotal}</span>
-// </div>
-
-// <div className="flex justify-between text-green-600 mb-2">
-// <span>Discount</span>
-// <span>-₹{discount}</span>
-// </div>
-
-// <hr className="my-3"/>
-
-// <div className="flex justify-between font-bold text-lg">
-// <span>Total</span>
-// <span>₹{total}</span>
-// </div>
-
-// {/* BUTTON */}
-
-// <button
-// onClick={confirmOrder}
-// disabled={loading}
-// className={`w-full mt-4 py-3 rounded-xl text-white flex justify-center items-center gap-2 transition
-// ${loading ? "bg-gray-400" : "bg-black hover:scale-[1.02] active:scale-95"}
-// `}
-// >
-
-// {loading ? (
-// <>
-// <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-// Placing Order...
-// </>
-// ) : payment==="cod"?"Place Order":`Pay ₹${total}`}
-
-// </button>
-
-// </div>
-
-// </div>
-
-// {/* MODAL */}
-
-// {showModal && (
-// <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-
-// <div className="bg-white rounded-xl p-6 w-[90%] max-w-md animate-scaleIn">
-
-// <h2 className="font-bold mb-2">Confirm Payment</h2>
-
-// <p className="text-gray-500 mb-4">
-// Pay ₹{total} via {payment.toUpperCase()}
-// </p>
-
-// <div className="flex gap-3">
-
-// <button
-// onClick={()=>setShowModal(false)}
-// className="border w-full py-2 rounded">
-// Cancel
-// </button>
-
-// <button
-// onClick={proceedPayment}
-// className="bg-black text-white w-full py-2 rounded flex justify-center items-center gap-2"
-// >
-
-// {confirmLoading ? (
-// <>
-// <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-// Processing
-// </>
-// ) : "Confirm"}
-
-// </button>
-
-// </div>
-
-// </div>
-
-// </div>
-// )}
-
-// {/* TOAST */}
-
-// {toast && (
-// <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded shadow-lg animate-bounce z-50">
-// {toast}
-// </div>
-// )}
-
-// <style jsx global>{`
-// .shimmer{
-// position:relative;
-// overflow:hidden;
-// }
-// .shimmer::after{
-// content:"";
-// position:absolute;
-// top:0;
-// left:-100%;
-// width:100%;
-// height:100%;
-// background:linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent);
-// animation:shimmer 1.2s infinite;
-// }
-// @keyframes shimmer{100%{left:100%;}}
-// @keyframes scaleIn{
-// from{transform:scale(0.9);opacity:0}
-// to{transform:scale(1);opacity:1}
-// }
-// .animate-scaleIn{
-// animation:scaleIn 0.25s ease;
-// }
-// `}</style>
-
-// </main>
-
-// );
-// }
-
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -479,23 +67,36 @@ export default function PaymentPage() {
   }, [previewUrl]);
 
   const total = cart.reduce(
-    (sum, item) => sum + Number(item.price) * Number(item.quantity || 1),
-    0
-  );
+  (sum, item) =>
+    sum + Number(item.price) * Number(item.quantity || 1),
+  0
+);
 
-  const mrpTotal = cart.reduce(
-    (sum, item) =>
-      sum + Number(item.mrp || item.price) * Number(item.quantity || 1),
-    0
-  );
+const mrpTotal = cart.reduce(
+  (sum, item) =>
+    sum + Number(item.mrp || item.price) * Number(item.quantity || 1),
+  0
+);
 
-  const discount = mrpTotal - total;
+const discount = mrpTotal - total;
+
+const COD_FEE = 99;
+const ONLINE_DISCOUNT_PERCENT = 5;
+
+const onlineDiscount =
+  payment === "upi" || payment === "qr"
+    ? Math.round(total * ONLINE_DISCOUNT_PERCENT / 100)
+    : 0;
+
+const codFee = payment === "cod" ? COD_FEE : 0;
+
+const finalTotal = total - onlineDiscount + codFee;
 
   const upiLink = (scheme = "upi://pay") => {
     const params = new URLSearchParams({
       pa: UPI_ID,
       pn: merchant,
-      am: total.toFixed(2),
+      am: finalTotal.toFixed(2),
       cu: "INR",
       tn: "Rewind Supply Order",
     });
@@ -578,7 +179,8 @@ export default function PaymentPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
   items: cart,
-  total: total,
+ total: finalTotal,
+codFee: payment === "cod" ? COD_FEE : 0,
   customer: address,
   paymentMethod: payment,
           paymentProof: screenshotUrl || null,
@@ -598,7 +200,15 @@ export default function PaymentPage() {
       }
 
       localStorage.removeItem("buyNow");
-      router.push(`/success?orderId=${data._id}`);
+
+// Mark first order completed
+localStorage.setItem("rewind_first_order_completed", "true");
+
+if (payment === "cod") {
+  router.push(`/success?orderId=${data._id}`);
+} else {
+  router.push(`/payment-pending?orderId=${data._id}`);
+}
     } catch (error) {
       console.error(error);
       showMessage("Network error. Please try again.");
@@ -681,7 +291,11 @@ export default function PaymentPage() {
       }
 
       localStorage.removeItem("buyNow");
-      router.push(`/payment-pending?orderId=${data._id}`);
+
+// Mark first order completed
+localStorage.setItem("rewind_first_order_completed", "true");
+
+router.push(`/payment-pending?orderId=${data._id}`);
     } catch (error) {
       console.error(error);
       showMessage("Network error. Please try again.");
@@ -717,10 +331,18 @@ export default function PaymentPage() {
                 : "border-gray-200"
             }`}
           >
-            <div className="font-bold">💵 Cash on Delivery</div>
-            <p className="text-sm text-gray-500 mt-1">
-              Pay when your order arrives.
-            </p>
+            <div className="font-bold flex justify-between">
+  <span>💵 Cash on Delivery</span>
+  <span className="text-orange-600">+ ₹99</span>
+</div>
+
+<p className="text-sm text-gray-500 mt-1">
+  Pay when your order arrives.
+</p>
+
+<p className="text-xs text-orange-600 mt-2 font-medium">
+  ₹99 Cash on Delivery handling fee applies.
+</p>
           </button>
 
           <button
@@ -731,10 +353,18 @@ export default function PaymentPage() {
                 : "border-gray-200"
             }`}
           >
-            <div className="font-bold">📱 UPI Apps</div>
-            <p className="text-sm text-gray-500 mt-1">
-              Google Pay, PhonePe and Paytm.
-            </p>
+           <div className="font-bold flex justify-between">
+  <span>📱 UPI Apps</span>
+  <span className="text-green-600">5% OFF</span>
+</div>
+
+<p className="text-sm text-gray-500 mt-1">
+  Google Pay, PhonePe and Paytm.
+</p>
+
+<p className="text-xs text-green-600 mt-2 font-medium">
+  Get an additional 5% discount on prepaid orders.
+</p>
           </button>
 
           <button
@@ -745,10 +375,18 @@ export default function PaymentPage() {
                 : "border-gray-200"
             }`}
           >
-            <div className="font-bold">▦ Scan UPI QR Code</div>
-            <p className="text-sm text-gray-500 mt-1">
-              Scan using any UPI application.
-            </p>
+            <div className="font-bold flex justify-between">
+  <span>▦ Scan UPI QR Code</span>
+  <span className="text-green-600">5% OFF</span>
+</div>
+
+<p className="text-sm text-gray-500 mt-1">
+  Scan using any UPI application.
+</p>
+
+<p className="text-xs text-green-600 mt-2 font-medium">
+  Get an additional 5% discount on prepaid orders.
+</p>
           </button>
 
           {/* UPI APPS */}
@@ -783,7 +421,7 @@ export default function PaymentPage() {
               />
 
               <p className="font-bold text-xl mt-3">
-                ₹{total.toFixed(2)}
+                ₹{finalTotal.toFixed(2)}
               </p>
 
               <p className="text-xs text-gray-500 mt-1">
@@ -892,17 +530,42 @@ export default function PaymentPage() {
             </span>
           </div>
 
-          <div className="flex justify-between text-green-600 mb-3">
-            <span>Discount</span>
-            <span>-₹{discount}</span>
-          </div>
+         
+<div className="flex justify-between text-green-600 mb-3">
+  <span>Product Discount</span>
+  <span>-₹{discount}</span>
+</div>
 
-          <hr className="my-4" />
+{/* EXTRA 5% PREPAID DISCOUNT */}
+{(payment === "upi" || payment === "qr") && (
+  <div className="flex justify-between text-green-600 mb-3">
+    <span>Extra 5% Prepaid Discount</span>
+    <span>-₹{onlineDiscount.toFixed(2)}</span>
+  </div>
+)}
 
-          <div className="flex justify-between font-bold text-xl">
-            <span>Total Amount</span>
-            <span>₹{total}</span>
-          </div>
+<hr className="my-4" />
+
+
+          {payment === "cod" && (
+  <div className="flex justify-between mb-3">
+    <span>COD Handling Fee</span>
+    <span>₹99</span>
+  </div>
+)}
+
+<hr className="my-4" />
+
+<div className="flex justify-between font-bold text-xl">
+  <span>Total Amount</span>
+  <span>₹{finalTotal.toFixed(2)}</span>
+</div>
+
+{payment === "cod" && (
+  <p className="text-xs text-gray-500 mt-2">
+    Includes ₹99 Cash on Delivery handling fee.
+  </p>
+)}
 
           {payment === "cod" && (
             <button
@@ -925,7 +588,7 @@ export default function PaymentPage() {
             </h2>
 
             <p className="text-gray-500 mt-3">
-              You are going to pay ₹{total.toFixed(2)} to Rewind Supply.
+              You are going to pay ₹{finalTotal.toFixed(2)} to Rewind Supply.
             </p>
 
             <div className="flex gap-3 mt-6">
