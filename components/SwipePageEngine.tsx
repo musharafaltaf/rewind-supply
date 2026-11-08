@@ -53,18 +53,10 @@ router.push(pages[index-1])
 return(
 
 <motion.div
-
-initial={{opacity:0,x:30}}
-
-animate={{opacity:1,x:0}}
-
-exit={{opacity:0,x:-30}}
-
-transition={{
-type:"spring",
-stiffness:120,
-damping:18
-}}
+  initial={{opacity:1}}
+  animate={{opacity:1}}
+  exit={{opacity:1}}
+  transition={{duration:0}}
 
 onTouchStart={handleStart}
 onTouchMove={handleMove}
