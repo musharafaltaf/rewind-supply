@@ -142,37 +142,30 @@ ref={sliderRef}
 
 <style jsx>{`
 
-.slider{
-position:absolute;
-top:0px;
-left:0;
-right:0;
-
-overflow:hidden;
-
-touch-action:pan-y;
+.slider {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+  touch-action: pan-y;
 }
 
-/* TRACK */
-
-.track{
-display:flex;
-transition:transform .35s cubic-bezier(.4,.8,.2,1);
+.track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.35s cubic-bezier(.4,.8,.2,1);
 }
 
-/* PAGE */
-
-.page{
-flex:0 0 100%;
-min-height:100vh;
-
-overflow-y:auto;
--webkit-overflow-scrolling:touch;
-
-padding:10px 14px;
-box-sizing:border-box;
+.page {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  overflow: visible;
+  padding: 10px 14px;
+  box-sizing: border-box;
 }
-
 `}</style>
 
 </div>
