@@ -34,7 +34,9 @@ sizes:"",
 sizeStock:"",
 featured:false,
 flashSale:false,
-flashPrice:""
+womenSection: false,
+flashPrice:"",
+gender: "men"
 })
 
 /* ================= LOAD CATEGORIES ================= */
@@ -381,6 +383,20 @@ setShowCategory(false)
 </div>
 </div>
 
+<label className="block mt-4 font-medium">
+  Product For
+</label>
+
+<select
+  name="gender"
+  value={form.gender}
+  onChange={handleChange}
+  className="w-full border rounded-lg p-3 mt-2"
+>
+  <option value="men">Men</option>
+  <option value="women">Women</option>
+</select>
+
 {/* PRICE */}
 <div className="card">
 <h2>Pricing</h2>
@@ -398,28 +414,53 @@ setShowCategory(false)
 
 {/* FEATURES */}
 <div className="card">
-<h2>Store Features</h2>
 
-<label className="feature">
-<input type="checkbox" name="featured" onChange={handleChange}/>
-Featured
-</label>
+  <h2>Store Features</h2>
 
-<label className="feature">
-<input type="checkbox" name="flashSale" onChange={handleChange}/>
-Flash Sale
-</label>
+  <label className="feature">
+    <input
+      type="checkbox"
+      name="featured"
+      checked={form.featured}
+      onChange={handleChange}
+    />
+    Featured Products
+  </label>
 
-{form.flashSale && (
-<input name="flashPrice" placeholder="Flash Price" onChange={handleChange}/>
-)}
+  <label className="feature">
+    <input
+      type="checkbox"
+      name="flashSale"
+      checked={form.flashSale}
+      onChange={handleChange}
+    />
+    Flash Sale
+  </label>
+
+  <label className="feature">
+    <input
+      type="checkbox"
+      name="womenSection"
+      checked={form.womenSection}
+      onChange={handleChange}
+    />
+    Show in Women's Section
+  </label>
+
+  {form.flashSale && (
+    <input
+      name="flashPrice"
+      value={form.flashPrice}
+      placeholder="Flash Price"
+      onChange={handleChange}
+    />
+  )}
 
 </div>
 
 <button className="submit" onClick={addProduct}>
-Add Product
+  Add Product
 </button>
-
 {/* POPUP */}
 {popup.show && (
 <div className="popupOverlay">

@@ -1,6 +1,8 @@
+
 "use client";
 
 import Navbar from "../components/Navbar";
+import GenderNavbar from "@/components/GenderNavbar";
 import SupportButton from "@/components/SupportButton";
 import PageTransition from "@/components/PageTransition";
 import BottomNav from "@/components/BottomNav";
@@ -39,6 +41,9 @@ export default function ClientShell({
         <WishlistProvider>
           <ClientLayout>
             {!hideUI && <Navbar children={""} />}
+
+            {!hideUI && <GenderNavbar />}
+
             {!hideUI && <SupportButton />}
 
             <div className="min-h-screen flex flex-col">
@@ -47,7 +52,9 @@ export default function ClientShell({
                   !hideUI ? "pb-[80px]" : ""
                 }`}
               >
-                <PageTransition>{children}</PageTransition>
+                <div className={!hideUI ? "pt-12" : ""}>
+  <PageTransition>{children}</PageTransition>
+</div>
               </main>
 
               {!hideUI && <BottomNav />}

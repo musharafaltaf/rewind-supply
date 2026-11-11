@@ -22,8 +22,10 @@ stock:"",
 sizes:"",
 sizeStock:"",
 featured:false,
+womenSection: false,
 flashSale:false,
-flashPrice:""
+flashPrice:"",
+gender: "men"
 })
 
 /* ================= LOAD PRODUCT ================= */
@@ -36,8 +38,11 @@ const res = await fetch(`/api/products/${params.id}`)
 const data = await res.json()
 
 setForm({
-...data,
-images: data.images || ["","","","",""],
+  ...data,
+
+  gender: data.gender || "men",
+
+  images: data.images || ["", "", "", "", ""],
 
 /* ✅ FIX SIZES */
 sizes: Array.isArray(data.sizes)
@@ -247,6 +252,14 @@ value={form.category}
 placeholder="Category"
 onChange={handleChange}
 />
+<select
+  name="gender"
+  value={form.gender}
+  onChange={handleChange}
+>
+  <option value="men">Men</option>
+  <option value="women">Women</option>
+</select>
 
 </div>
 
@@ -298,50 +311,53 @@ onChange={handleChange}
 </div>
 
 {/* FEATURES */}
-
 <div className="card">
 
-<label>
+  <h2>Store Features</h2>
 
-<input
-type="checkbox"
-name="featured"
-checked={form.featured}
-onChange={handleChange}
-/>
+  <label>
+    <input
+      type="checkbox"
+      name="featured"
+      checked={form.featured}
+      onChange={handleChange}
+    />
+    Featured Product
+  </label>
 
-Featured Product
+  <label>
+    <input
+      type="checkbox"
+      name="flashSale"
+      checked={form.flashSale}
+      onChange={handleChange}
+    />
+    Flash Sale
+  </label>
 
-</label>
+  <label>
+    <input
+      type="checkbox"
+      name="womenSection"
+      checked={form.womenSection}
+      onChange={handleChange}
+    />
+    Show in Women's Section
+  </label>
 
-<label>
-
-<input
-type="checkbox"
-name="flashSale"
-checked={form.flashSale}
-onChange={handleChange}
-/>
-
-Flash Sale
-
-</label>
-
-{form.flashSale && (
-
-<input
-name="flashPrice"
-value={form.flashPrice}
-placeholder="Flash price"
-onChange={handleChange}
-/>
-
-)}
+  {form.flashSale && (
+    <input
+      name="flashPrice"
+      value={form.flashPrice}
+      placeholder="Flash price"
+      onChange={handleChange}
+    />
+  )}
 
 </div>
 
 <button className="save" onClick={updateProduct}>
-Update Product
+  Update Product
 </button>
 
 <style jsx>{`

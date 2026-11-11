@@ -67,6 +67,16 @@ type:Object,
 default:{}
 },
 
+
+gender: {
+  type: String,
+  enum: ["men", "women"],
+  default: "men",
+},
+womenSection: {
+  type: Boolean,
+  default: false,
+},
 /* FEATURED PRODUCT */
 
 featured:{
